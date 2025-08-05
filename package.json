@@ -1,0 +1,37 @@
+{
+  "name": "healthytext-sms-system",
+  "version": "1.0.0",
+  "description": "Automated SMS wellness messaging system with MariaDB/SQLite support and WordPress integration",
+  "main": "scripts/app.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "start": "NODE_ENV=production node scripts/app.js",
+    "dev": "NODE_ENV=development nodemon scripts/app.js",
+    "setup": "node scripts/setup-production.js",
+    "setup-dev": "node scripts/setup-databases.js",
+    "test": "node scripts/test-connection.js",
+    "test-wp": "node test-wordpress-users.js",
+    "test-timezone": "node test-timezone-sync.js",
+    "test-phone": "node test-phone-matching.js",
+    "test-interactive": "node test-interactive-response.js",
+    "health": "node -e \"const db=require('./scripts/DatabaseManager');const m=new db();m.initialize().then(()=>m.healthCheck()).then(h=>console.log(h)).then(()=>m.close());\"",
+    "postinstall": "npm run setup"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "mysql2": "^3.6.0",
+    "twilio": "^4.19.0",
+    "node-cron": "^3.0.2",
+    "dotenv": "^16.3.1",
+    "moment-timezone": "^0.5.43"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["sms", "twilio", "wellness", "automation"],
+  "author": "HealthyText",
+  "license": "ISC"
+}

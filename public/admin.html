@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthyText Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-running { background: #4CAF50; }
+        .status-stopped { background: #f44336; }
+        .status-warning { background: #ff9800; }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .result-success {
+            background: #e8f5e8;
+            border: 1px solid #4CAF50;
+            color: #2e7d32;
+        }
+
+        .result-error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-item strong {
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .refresh-btn {
+            background: #28a745;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 HealthyText Admin Dashboard</h1>
+            <p>Monitor your SMS system and send broadcast messages</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- System Status Card -->
+            <div class="card">
+                <h2>📊 System Status</h2>
+                <button class="btn refresh-btn" onclick="refreshSystemStatus()">🔄 Refresh</button>
+                
+                <!-- Program Filter -->
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="statusProgramFilter">View Program:</label>
+                    <select id="statusProgramFilter" onchange="refreshSystemStatus()" style="width: 100%; padding: 8px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                        <option value="ALL">All Programs</option>
+                        <option value="Elevate">Elevate</option>
+                        <option value="FitFlow">FitFlow</option>
+                        <option value="NutriWise">NutriWise</option>
+                        <option value="SleepWell">SleepWell</option>
+                        <option value="MindSharp">MindSharp</option>
+                    </select>
+                </div>
+                
+                <div class="stats-grid" id="systemStats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="userCount">-</span>
+                        <span class="stat-label">Total Users</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="messageCount">-</span>
+                        <span class="stat-label">Messages Available</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="schedulerStatus">-</span>
+                        <span class="stat-label">Scheduler</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="activePrograms">-</span>
+                        <span class="stat-label">Active Programs</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <p><span id="systemStatusIndicator" class="status-indicator"></span><strong>System:</strong> <span id="systemStatusText">Loading...</span></p>
+                    <p style="margin-top: 8px;"><strong>Current Filter:</strong> <span id="currentProgramFilter">All Programs</span></p>
+                    <p style="margin-top: 8px;"><strong>Last Updated:</strong> <span id="lastUpdated">-</span></p>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="toggleScheduler()" id="schedulerToggle">⏰ Loading...</button>
+                </div>
+            </div>
+
+            <!-- Message Broadcaster Card -->
+            <div class="card">
+                <h2>💉 Broadcast Message</h2>
+                <form id="broadcastForm">
+                    <div class="form-group">
+                        <label for="messageId">Message ID:</label>
+                        <input type="text" id="messageId" placeholder="e.g., announcement_001" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="messageText">Message Content:</label>
+                        <textarea id="messageText" placeholder="Hi {name}! Your message here..." required></textarea>
+                        <small style="color: #666;">💡 Use {name} to personalize with user's first name</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="protocol">Target Program:</label>
+                        <select id="protocol" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                            <option value="ALL">📢 All Programs (Everyone)</option>
+                            <option value="Elevate">🧘 Elevate (Wellness & Mindfulness)</option>
+                            <option value="FitFlow">💪 FitFlow (Fitness & Exercise)</option>
+                            <option value="NutriWise">🥗 NutriWise (Nutrition & Diet)</option>
+                            <option value="SleepWell">😴 SleepWell (Sleep & Recovery)</option>
+                            <option value="MindSharp">🧠 MindSharp (Focus & Productivity)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="priority">Priority Level:</label>
+                        <select id="priority" style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                            <option value="1">🔴 High Priority (Send Immediately)</option>
+                            <option value="2">🟡 Normal Priority</option>
+                            <option value="3">🟢 Low Priority</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="sendBtn">📤 Send Broadcast</button>
+                </form>
+
+                <div id="broadcastResult" class="result-box"></div>
+            </div>
+        </div>
+
+        <!-- Program Management & Recent Broadcasts -->
+        <div class="dashboard-grid">
+            <!-- Program Overview Card -->
+            <div class="card">
+                <h2>🎯 Program Overview</h2>
+                <button class="btn refresh-btn" onclick="refreshProgramStats()">🔄 Refresh Programs</button>
+                
+                <div id="programStats">
+                    <div class="loading">Loading program statistics...</div>
+                </div>
+            </div>
+
+            <!-- Recent Broadcasts Card -->
+            <div class="card">
+                <h2>📋 Recent Broadcasts</h2>
+                <button class="btn refresh-btn" onclick="refreshHistory()">🔄 Refresh History</button>
+                
+                <!-- Program Filter for History -->
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="historyProgramFilter">Filter by Program:</label>
+                    <select id="historyProgramFilter" onchange="refreshHistory()" style="width: 100%; padding: 8px; border: 2px solid #e1e5e9; border-radius: 8px;">
+                        <option value="ALL">All Programs</option>
+                        <option value="Elevate">Elevate</option>
+                        <option value="FitFlow">FitFlow</option>
+                        <option value="NutriWise">NutriWise</option>
+                        <option value="SleepWell">SleepWell</option>
+                        <option value="MindSharp">MindSharp</option>
+                    </select>
+                </div>
+                
+                <div id="broadcastHistory">
+                    <div class="loading">Loading broadcast history...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSchedulerStatus = false;
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshSystemStatus();
+            refreshHistory();
+            refreshProgramStats();
+        });
+
+        // Refresh system status
+        async function refreshSystemStatus() {
+            try {
+                const programFilter = document.getElementById('statusProgramFilter').value;
+                const url = programFilter === 'ALL' ? '/status' : `/admin/program-status/${programFilter}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                document.getElementById('userCount').textContent = data.users || 0;
+                document.getElementById('messageCount').textContent = data.messages || 0;
+                document.getElementById('schedulerStatus').textContent = data.scheduler ? '✅ Running' : '❌ Stopped';
+                document.getElementById('activePrograms').textContent = data.activePrograms || '-';
+                document.getElementById('systemStatusText').textContent = data.status;
+                document.getElementById('currentProgramFilter').textContent = programFilter === 'ALL' ? 'All Programs' : programFilter;
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+                
+                // Update status indicator
+                const indicator = document.getElementById('systemStatusIndicator');
+                if (data.status === 'running') {
+                    indicator.className = 'status-indicator status-running';
+                } else {
+                    indicator.className = 'status-indicator status-warning';
+                }
+
+                // Update scheduler button
+                currentSchedulerStatus = data.scheduler;
+                updateSchedulerButton();
+
+            } catch (error) {
+                console.error('Error fetching system status:', error);
+                document.getElementById('systemStatusText').textContent = 'Error loading status';
+                document.getElementById('systemStatusIndicator').className = 'status-indicator status-stopped';
+            }
+        }
+
+        // Refresh program statistics
+        async function refreshProgramStats() {
+            const programStatsDiv = document.getElementById('programStats');
+            programStatsDiv.innerHTML = '<div class="loading">Loading program statistics...</div>';
+            
+            try {
+                const response = await fetch('/admin/program-overview');
+                const programs = await response.json();
+                
+                if (programs.length === 0) {
+                    programStatsDiv.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No programs active yet</p>';
+                    return;
+                }
+                
+                programStatsDiv.innerHTML = '';
+                programs.forEach(program => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    
+                    const emoji = {
+                        'Elevate': '🧘',
+                        'FitFlow': '💪', 
+                        'NutriWise': '🥗',
+                        'SleepWell': '😴',
+                        'MindSharp': '🧠'
+                    }[program.protocol] || '📱';
+                    
+                    div.innerHTML = `
+                        <strong>${emoji} ${program.protocol}</strong><br>
+                        <strong>Users:</strong> ${program.user_count} (${program.trial_users} trial, ${program.subscriber_users} subscribers)<br>
+                        <strong>Messages:</strong> ${program.message_count} available<br>
+                        <strong>Status:</strong> ${program.user_count > 0 ? '🟢 Active' : '🟡 Ready'}
+                    `;
+                    programStatsDiv.appendChild(div);
+                });
+                
+            } catch (error) {
+                programStatsDiv.innerHTML = '<p style="color: #f44336;">Error loading program stats: ' + error.message + '</p>';
+            }
+        }
+
+        // Update scheduler button
+        function updateSchedulerButton() {
+            const btn = document.getElementById('schedulerToggle');
+            if (currentSchedulerStatus) {
+                btn.textContent = '🛑 Stop Scheduler';
+                btn.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)';
+            } else {
+                btn.textContent = '▶️ Start Scheduler';
+                btn.style.background = 'linear-gradient(135deg, #4CAF50, #388e3c)';
+            }
+        }
+
+        // Toggle scheduler
+        async function toggleScheduler() {
+            const btn = document.getElementById('schedulerToggle');
+            btn.disabled = true;
+            btn.textContent = '⏳ Please wait...';
+
+            try {
+                const endpoint = currentSchedulerStatus ? '/scheduler/stop' : '/scheduler/start';
+                const response = await fetch(endpoint, { method: 'POST' });
+                const result = await response.json();
+
+                if (result.success) {
+                    currentSchedulerStatus = !currentSchedulerStatus;
+                    updateSchedulerButton();
+                    refreshSystemStatus();
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error toggling scheduler: ' + error.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Handle broadcast form submission
+        document.getElementById('broadcastForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const messageId = document.getElementById('messageId').value;
+            const messageText = document.getElementById('messageText').value;
+            const protocol = document.getElementById('protocol').value;
+            const priority = document.getElementById('priority').value;
+            const sendBtn = document.getElementById('sendBtn');
+            const resultBox = document.getElementById('broadcastResult');
+            
+            // Disable form during sending
+            sendBtn.disabled = true;
+            sendBtn.textContent = '📤 Sending...';
+            resultBox.style.display = 'none';
+            
+            try {
+                const response = await fetch('/admin/inject-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messageId: messageId,
+                        message: messageText,
+                        protocol: protocol,
+                        priority: parseInt(priority)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultBox.className = 'result-box result-success';
+                    const targetText = protocol === 'ALL' ? 'All Programs' : protocol;
+                    resultBox.textContent = `✅ SUCCESS!\n\nMessage ID: ${result.messageId}\nTarget: ${targetText}\nUsers Found: ${result.usersFound}\nMessages Sent: ${result.messagesSent}\nMessages Skipped: ${result.messagesSkipped}\nErrors: ${result.errors.length}`;
+                    
+                    // Clear form
+                    document.getElementById('messageId').value = '';
+                    document.getElementById('messageText').value = '';
+                    
+                    // Refresh history and stats
+                    setTimeout(() => {
+                        refreshHistory();
+                        refreshSystemStatus();
+                        refreshProgramStats();
+                    }, 1000);
+                    
+                } else {
+                    resultBox.className = 'result-box result-error';
+                    resultBox.textContent = `❌ ERROR:\n${result.error}`;
+                }
+                
+            } catch (error) {
+                resultBox.className = 'result-box result-error';
+                resultBox.textContent = `❌ ERROR:\n${error.message}`;
+            } finally {
+                resultBox.style.display = 'block';
+                sendBtn.disabled = false;
+                sendBtn.textContent = '📤 Send Broadcast';
+            }
+        });
+
+        // Refresh broadcast history
+        async function refreshHistory() {
+            const historyDiv = document.getElementById('broadcastHistory');
+            const programFilter = document.getElementById('historyProgramFilter').value;
+            historyDiv.innerHTML = '<div class="loading">Loading broadcast history...</div>';
+            
+            try {
+                const url = programFilter === 'ALL' ? '/admin/injection-history' : `/admin/injection-history?program=${programFilter}`;
+                const response = await fetch(url);
+                const history = await response.json();
+                
+                if (history.length === 0) {
+                    const filterText = programFilter === 'ALL' ? '' : ` for ${programFilter}`;
+                    historyDiv.innerHTML = `<p style="color: #666; text-align: center; padding: 20px;">No broadcasts sent yet${filterText}</p>`;
+                    return;
+                }
+                
+                historyDiv.innerHTML = '';
+                history.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    
+                    const emoji = {
+                        'Elevate': '🧘',
+                        'FitFlow': '💪', 
+                        'NutriWise': '🥗',
+                        'SleepWell': '😴',
+                        'MindSharp': '🧠',
+                        'ALL': '📢'
+                    }[item.protocol] || '📱';
+                    
+                    div.innerHTML = `
+                        <strong>${emoji} ${item.message_id}</strong> <small style="color: #666;">(${item.protocol})</small><br>
+                        <strong>Recipients:</strong> ${item.total_recipients} users<br>
+                        <strong>Results:</strong> ${item.sent_count} sent, ${item.skipped_count} skipped, ${item.failed_count} failed<br>
+                        <strong>Sent:</strong> ${new Date(item.injection_time).toLocaleString()}
+                    `;
+                    historyDiv.appendChild(div);
+                });
+                
+            } catch (error) {
+                historyDiv.innerHTML = '<p style="color: #f44336;">Error loading history: ' + error.message + '</p>';
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshSystemStatus, 30000);
+    </script>
+</body>
+</html>

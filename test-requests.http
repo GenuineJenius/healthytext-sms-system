@@ -1,0 +1,10 @@
+### 🆕 Manual Message Injection - Send to All Users
+POST http://localhost:3000/admin/inject-message
+Content-Type: application/json
+
+{
+  "messageId": "admin_001",
+  "message": "🎉 Exciting news {name}! We just launched a new feature to help you on your wellness journey. Check it out at healthytext.com!",
+  "priority": 1,
+  "protocol": "ALL"
+}

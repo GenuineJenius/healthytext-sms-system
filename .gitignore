@@ -1,0 +1,111 @@
+# HealthyText SMS System - Git Ignore
+# ====================================
+
+# Environment & Secrets
+.env
+.env.local
+.env.production
+.env.staging
+*.key
+*.pem
+
+# Local Development Databases
+databases/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Node.js Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Logs
+logs/
+*.log
+log-*.txt
+system_logs.txt
+
+# Runtime & Cache
+.cache/
+tmp/
+temp/
+*.tmp
+*.temp
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test Coverage & Reports
+coverage/
+*.coverage
+.nyc_output
+
+# Development & Debugging
+debug.log
+error.log
+access.log
+
+# Backup Files
+*.bak
+*.backup
+*~
+
+# Production Build Files (if any)
+dist/
+build/
+
+# Local Configuration Overrides
+local-config.js
+local-settings.json
+
+# Twilio Webhook Test Files
+webhook-test.json
+test-webhook-data.json
+
+# Manual Testing Files
+manual-test-*.js
+temp-test-*.js
+
+# Documentation Drafts
+README-draft.md
+NOTES.md
+TODO.md
+
+# Deployment Scripts (sensitive)
+deploy.sh
+deploy-prod.sh
+
+# Archive Files
+*.zip
+*.tar.gz
+*.rar
+
+# Keep These Files in Git:
+# ========================
+# .env.example (template)
+# scripts/ (all setup scripts)
+# package.json
+# README.md
+# CLAUDE.md (project instructions)
+# All .js files in root and scripts/
+# public/ directory
+# Schema and setup files
