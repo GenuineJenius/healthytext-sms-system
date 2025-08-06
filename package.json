@@ -2,13 +2,13 @@
   "name": "healthytext-sms-system",
   "version": "1.0.0",
   "description": "Automated SMS wellness messaging system with MariaDB/SQLite support and WordPress integration",
-  "main": "scripts/app.js",
+  "main": "app.js",
   "engines": {
     "node": ">=16.0.0"
   },
   "scripts": {
-    "start": "npx cross-env NODE_ENV=production node scripts/app.js",
-    "dev": "npx cross-env NODE_ENV=development npx nodemon scripts/app.js",
+    "start": "npx cross-env NODE_ENV=production node app.js",
+    "dev": "npx cross-env NODE_ENV=development npx nodemon app.js",
     "setup": "node scripts/setup-production.js",
     "setup-dev": "node scripts/setup-databases.js",
     "test": "node scripts/test-connection.js",

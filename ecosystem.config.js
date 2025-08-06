@@ -2,7 +2,7 @@
 module.exports = {
   apps: [{
     name: 'healthytext-sms',
-    script: 'scripts/app.js',
+    script: 'app.js',
     
     // Production settings
     env_production: {
