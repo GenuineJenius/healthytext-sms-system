@@ -123,8 +123,30 @@ npm run setup
 # Test connections
 npm test
 
-# Start the application
+# Start with PM2 (recommended for production)
+npm run pm2:start
+
+# Or start manually (will stop if server restarts)
 npm start
+```
+
+### 6. Production Process Management
+```bash
+# Check app status
+npm run pm2:status
+
+# View logs
+npm run pm2:logs
+
+# Restart app
+npm run pm2:restart
+
+# Stop app
+npm run pm2:stop
+
+# Set up auto-restart on server reboot
+pm2 startup
+pm2 save
 ```
 
 ## 📊 Database Tables

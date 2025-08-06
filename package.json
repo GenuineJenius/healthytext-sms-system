@@ -7,8 +7,8 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "start": "NODE_ENV=production node scripts/app.js",
-    "dev": "NODE_ENV=development nodemon scripts/app.js",
+    "start": "npx cross-env NODE_ENV=production node scripts/app.js",
+    "dev": "npx cross-env NODE_ENV=development npx nodemon scripts/app.js",
     "setup": "node scripts/setup-production.js",
     "setup-dev": "node scripts/setup-databases.js",
     "test": "node scripts/test-connection.js",
@@ -17,7 +17,13 @@
     "test-phone": "node test-phone-matching.js",
     "test-interactive": "node test-interactive-response.js",
     "health": "node -e \"const db=require('./scripts/DatabaseManager');const m=new db();m.initialize().then(()=>m.healthCheck()).then(h=>console.log(h)).then(()=>m.close());\"",
-    "postinstall": "npm run setup"
+    "postinstall": "npm run setup",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:dev": "pm2 start ecosystem.config.js --env development",
+    "pm2:stop": "pm2 stop healthytext-sms",
+    "pm2:restart": "pm2 restart healthytext-sms",
+    "pm2:logs": "pm2 logs healthytext-sms",
+    "pm2:status": "pm2 status"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -26,10 +32,12 @@
     "twilio": "^4.19.0",
     "node-cron": "^3.0.2",
     "dotenv": "^16.3.1",
-    "moment-timezone": "^0.5.43"
+    "moment-timezone": "^0.5.43",
+    "pm2": "^5.3.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "cross-env": "^7.0.3"
   },
   "keywords": ["sms", "twilio", "wellness", "automation"],
   "author": "HealthyText",
